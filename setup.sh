@@ -377,10 +377,11 @@ else
     show_info "Required parameters"
     echo ""
     echo -e "${BOLD}Installation path:${NC}"
-    echo -e "  Directory where all services and data will be stored"
+    echo -e "  Directory where all services"
     read -p "Path [/home/$USER/config]: " CONFIG_PATH
-    CONFIG_PATH=${CONFIG_PATH:-/home/$USER/data}
+    CONFIG_PATH=${CONFIG_PATH:-/home/$USER/config}
     show_success "Path: $CONFIG_PATH"
+    echo -e "  Directory where all data is stored"
     read -p "Path [/home/$USER/data]: " DATA_PATH
     DATA_PATH=${DATA_PATH:-/home/$USER/data}
     show_success "Path: $DATA_PATH"
@@ -396,6 +397,8 @@ else
     show_info "Downloading base .env..."
     curl -sL "$REPO_BASE/.env.example" -o .env
 
+    read -p "Server DNS Record (e.g. isyrr.local): " LOCAL_DNS
+
     show_info "Injecting variables..."
     sed -i "s|^PUID=.*|PUID=$(id -u)|g" .env
     sed -i "s|^PGID=.*|PGID=$(id -g)|g" .env
@@ -403,6 +406,7 @@ else
     sed -i "s|^CONFIG_PATH=.*|CONFIG_PATH=$CONFIG_PATH|g" .env
     sed -i "s|^DATA_PATH=.*|DATA_PATH=$DATA_PATH|g" .env
     sed -i "s|^SERVER_IP=.*|SERVER_IP=$LOCAL_IP|g" .env
+    sed -i "s|^SERVER_DNS=.*|SERVER_DNS=$LOCAL_DNS|g" .env
     show_success "Configuration injected"
 fi
 
