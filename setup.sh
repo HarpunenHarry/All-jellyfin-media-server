@@ -430,14 +430,23 @@ if [ "$INSTALL_VPN" == "true" ] && [ "$FORCE_VPN_CONFIG" = true ]; then
                 show_info "ProtonVPN - WireGuard Configuration"
                 show_info "Get these values from your Proton account"
                 sed -i "s/^# ENDPOINT_IP=/ENDPOINT_IP=/g" .env
+                sed -i "s/^# ENDPOINT_PORT=/ENDPOINT_PORT=/g" .env
+                sed -i "s/^# WIREGUARD_ADDR=/WIREGUARD_ADDR=/g" .env
+                sed -i "s/^# DNS_ADDRESS=/DNS_ADDRESS=/g" .env
                 sed -i "s/^# PUBLIC_KEY=/PUBLIC_KEY=/g" .env
                 sed -i "s/^# PRIVATE_KEY=/PRIVATE_KEY=/g" .env
                 
                 read -p "Endpoint IP (eg: 185.x.x.x): " v_eip
+                read -p "Endpoint Port (eg: 51820): " v_eport
+                read -p "Wireguard Address (eg: 10.x.x.x): " v_wadr
+                read -p "DNS IP (eg: 185.x.x.x): " v_dns
                 read -p "Public Key: " v_pub
                 read -p "Private Key: " v_priv
                 
                 sed -i "s|^ENDPOINT_IP=.*|ENDPOINT_IP=$v_eip|g" .env
+                sed -i "s|^ENDPOINT_PORT=.*|ENDPOINT_PORT=$v_eport|g" .env
+                sed -i "s|^WIREGUARD_ADDR=.*|WIREGUARD_ADDR=$v_wadr|g" .env
+                sed -i "s|^DNS_ADDRESS=.*|DNS_ADDRESS=$v_dns|g" .env
                 sed -i "s|^PUBLIC_KEY=.*|PUBLIC_KEY=$v_pub|g" .env
                 sed -i "s|^PRIVATE_KEY=.*|PRIVATE_KEY=$v_priv|g" .env
             fi
