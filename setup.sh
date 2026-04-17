@@ -477,7 +477,7 @@ if [ "$INSTALL_HOMEPAGE" == "true" ]; then
     echo ""
     sed -i "s/^#SERVER_IP=.*/SERVER_IP=$LOCAL_IP/g" .env
     read -p "Server DNS Record (eg: isyrr.local): " v_dnsrec
-    sed -i "s|^SERVER_DNS=.*|SERVER_DNS=$v_dnsrec|g" .env
+    sed -i "s|^#SERVER_DNS=.*|SERVER_DNS=$v_dnsrec|g" .env
     show_success "Server IP configured: $LOCAL_IP, $v_dnsrec"
     show_info "You will be able to access Homepage at:" 
     echo -e "  ${CYAN}http://${LOCAL_IP}:3000${NC}"
