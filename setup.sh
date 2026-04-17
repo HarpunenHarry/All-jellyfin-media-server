@@ -378,9 +378,12 @@ else
     echo ""
     echo -e "${BOLD}Installation path:${NC}"
     echo -e "  Directory where all services and data will be stored"
-    read -p "Path [/home/$USER/data]: " COMMON_PATH
-    COMMON_PATH=${COMMON_PATH:-/home/$USER/data}
-    show_success "Path: $COMMON_PATH"
+    read -p "Path [/home/$USER/config]: " CONFIG_PATH
+    CONFIG_PATH=${CONFIG_PATH:-/home/$USER/data}
+    show_success "Path: $CONFIG_PATH"
+    read -p "Path [/home/$USER/data]: " DATA_PATH
+    DATA_PATH=${DATA_PATH:-/home/$USER/data}
+    show_success "Path: $DATA_PATH"
 
     echo ""
     echo -e "${BOLD}Timezone:${NC}"
@@ -397,7 +400,8 @@ else
     sed -i "s|^PUID=.*|PUID=$(id -u)|g" .env
     sed -i "s|^PGID=.*|PGID=$(id -g)|g" .env
     sed -i "s|^TZ=.*|TZ=$USER_TZ|g" .env
-    sed -i "s|^COMMON_PATH=.*|COMMON_PATH=$COMMON_PATH|g" .env
+    sed -i "s|^CONFIG_PATH=.*|CONFIG_PATH=$CONFIG_PATH|g" .env
+    sed -i "s|^DATA_PATH=.*|DATA_PATH=$DATA_PATH|g" .env
     sed -i "s|^SERVER_IP=.*|SERVER_IP=$LOCAL_IP|g" .env
     show_success "Configuration injected"
 fi
@@ -483,8 +487,8 @@ fi
 if [ "$INSTALL_HOMEPAGE" == "true" ]; then
     box_section "Preconfigurations"
     
-    TARGET_DATA=$(grep COMMON_PATH "$ENV_FILE" | cut -d '=' -f2)
-    [ -z "$TARGET_DATA" ] && TARGET_DATA="$COMMON_PATH"
+    TARGET_DATA=$(grep CONFIG_PATH "$ENV_FILE" | cut -d '=' -f2)
+    [ -z "$TARGET_DATA" ] && TARGET_DATA="$CONFIG_PATH"
     
     DEST_HOMEPAGE="$TARGET_DATA/configs/homepage"
     HOMEPAGE_CONFIG_BASE="$REPO_BASE/../config/homepage"
@@ -517,15 +521,18 @@ show_success "Configuration saved"
 
 generate_docker_command
 
-CURRENT_PATH=$(grep COMMON_PATH "$ENV_FILE" | cut -d '=' -f2)
-[ -z "$CURRENT_PATH" ] && CURRENT_PATH="/home/$USER/data"
+CURRENT_CONFIG_PATH=$(grep CONFIG_PATH "$ENV_FILE" | cut -d '=' -f2)
+[ -z "$CURRENT_CONFIG_PATH" ] && CURRENT_CONFIG_PATH="/home/$USER/data"
 
-mkdir -p "$CURRENT_PATH/configs/"{qbittorrent,prowlarr,jackett,sonarr,radarr,jellyfin,jellyseerr,gluetun}
-mkdir -p "$CURRENT_PATH/qbittorrent/downloads"
-mkdir -p "$CURRENT_PATH/sonarr/tv"
-mkdir -p "$CURRENT_PATH/radarr/movies"
-[ "$INSTALL_HOMEPAGE" == "true" ] && mkdir -p "$CURRENT_PATH/configs/homepage"
-[ "$INSTALL_BAZARR" == "true" ] && mkdir -p "$CURRENT_PATH/configs/bazarr"
+mkdir -p "$CURRENT_CONFIG_PATH/configs/"{qbittorrent,prowlarr,jackett,sonarr,radarr,jellyfin,jellyseerr,gluetun}
+[ "$INSTALL_HOMEPAGE" == "true" ] && mkdir -p "$CURRENT_CONFIG_PATH/configs/homepage"
+[ "$INSTALL_BAZARR" == "true" ] && mkdir -p "$CURRENT_CONFIG_PATH/configs/bazarr"
+
+CURRENT_DATA_PATH=$(grep DATA_PATH "$ENV_FILE" | cut -d '=' -f2)
+[ -z "$CURRENT_DATA_PATH" ] && CURRENT_DATA_PATH="/home/$USER/data"
+mkdir -p "$CURRENT_DATA_PATH/qbittorrent/downloads"
+mkdir -p "$CURRENT_DATA_PATH/sonarr/tv"
+mkdir -p "$CURRENT_DATA_PATH/radarr/movies"
 
 show_success "Directories created"
 
@@ -590,7 +597,7 @@ if [ "$DO_HARVEST" == "true" ]; then
     [ -f "$ENV_FILE" ] && source "$ENV_FILE"
     [ ! -f "$CONFIG_FILE" ] && touch "$CONFIG_FILE"
 
-    DATA_PATH=${COMMON_PATH:-/opt/isyrr}
+    DATA_PATH=${CONFIG_PATH:-/opt/isyrr}
     HOMEPAGE_SERVICES="$DATA_PATH/configs/homepage/config/services.yaml"
 
     check_http() {

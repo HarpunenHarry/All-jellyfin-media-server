@@ -9,8 +9,9 @@ services:
     ports:
       - 6767:6767
     volumes:
-      - ${COMMON_PATH}:${COMMON_PATH}
-      - ${COMMON_PATH}/configs/bazarr:/config
-      - ${COMMON_PATH}/sonarr/tv:/tv
-      - ${COMMON_PATH}/radarr/movies:/movies
+      - ${CONFIG_PATH}:${CONFIG_PATH}
+      - ${DATA_PATH}:${DATA_PATH}
+      - ${CONFIG_PATH}/configs/bazarr:/config
+      - ${DATA_PATH}/sonarr/tv:/tv
+      - ${DATA_PATH}/radarr/movies:/movies
     restart: unless-stopped

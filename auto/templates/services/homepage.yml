@@ -5,9 +5,9 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ${COMMON_PATH}/configs/homepage/config:/app/config
-      - ${COMMON_PATH}/configs/homepage/images:/app/images
-      - ${COMMON_PATH}/configs/homepage/icons:/app/icons
+      - ${CONFIG_PATH}/configs/homepage/config:/app/config
+      - ${CONFIG_PATH}/configs/homepage/images:/app/images
+      - ${CONFIG_PATH}/configs/homepage/icons:/app/icons
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - PUID=0
