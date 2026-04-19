@@ -669,8 +669,8 @@ if [ "$DO_HARVEST" == "true" ]; then
     [ -f "$ENV_FILE" ] && source "$ENV_FILE"
     [ ! -f "$CONFIG_FILE" ] && touch "$CONFIG_FILE"
 
-    DATA_PATH=${CONFIG_PATH:-/opt/isyrr}
-    HOMEPAGE_SERVICES="$DATA_PATH/configs/homepage/config/services.yaml"
+    CONFIG_PATH=${CONFIG_PATH:-/opt/isyrr}
+    HOMEPAGE_SERVICES="$CONFIG_PATH/configs/homepage/config/services.yaml"
 
     check_http() {
         if [[ "$1" == "200" || "$1" == "204" ]]; then 
@@ -844,11 +844,11 @@ if [ "$DO_HARVEST" == "true" ]; then
         fi
     fi
 
-    moissonner "Radarr" "$DATA_PATH/configs/radarr/config.xml" "xml"
-    moissonner "Sonarr" "$DATA_PATH/configs/sonarr/config.xml" "xml"
-    moissonner "Prowlarr" "$DATA_PATH/configs/prowlarr/config.xml" "xml"
-    moissonner "Jellyseerr" "$DATA_PATH/configs/jellyseerr/settings.json" "json"
-    moissonner "Jackett" "$DATA_PATH/configs/jackett/Jackett/ServerConfig.json" "json"
+    moissonner "Radarr" "$CONFIG_PATH/configs/radarr/config.xml" "xml"
+    moissonner "Sonarr" "$CONFIG_PATH/configs/sonarr/config.xml" "xml"
+    moissonner "Prowlarr" "$CONFIG_PATH/configs/prowlarr/config.xml" "xml"
+    moissonner "Jellyseerr" "$CONFIG_PATH/configs/jellyseerr/settings.json" "json"
+    moissonner "Jackett" "$CONFIG_PATH/configs/jackett/Jackett/ServerConfig.json" "json"
 
     box_section "Service Configuration"
 
@@ -957,7 +957,7 @@ if [ "$DO_HARVEST" == "true" ]; then
     if [[ "$INSTALL_BAZARR" == "true" ]]; then
         box_section "Optional Services"
 
-        BAZARR_CONFIG="$DATA_PATH/configs/bazarr/config/config.yaml"
+        BAZARR_CONFIG="$CONFIG_PATH/configs/bazarr/config/config.yaml"
         
         if [ -f "$BAZARR_CONFIG" ]; then
             BAZARR_KEY=$(grep 'apikey:' "$BAZARR_CONFIG" | awk '{print $2}' | tr -d '"' | tr -d "'" | tr -d '\r' | head -n 1 | xargs)
