@@ -9,9 +9,10 @@ services:
       - TZ=${TZ}
       # - DOCKER_MODS=ghcr.io/gabe565/linuxserver-mod-vuetorrent
     volumes:
-      - ${COMMON_PATH}:${COMMON_PATH}
-      - ${COMMON_PATH}/configs/qbittorrent:/config
-      - ${COMMON_PATH}/qbittorrent/downloads:/downloads
+      - ${CONFIG_PATH}:${CONFIG_PATH}
+      - ${DATA_PATH}:${DATA_PATH}
+      - ${CONFIG_PATH}/configs/qbittorrent:/config
+      - ${DATA_PATH}/qbittorrent/downloads:/downloads
     ports:
       - 8080:8080
       - 6881:6881
