@@ -389,12 +389,19 @@ done
 # 3. ENV VARIABLES CONFIG
 # ======================================================================
 
+DNS_QUERIED=false
+
 if [ "$SKIP_ENV_SETUP" = true ] && [ -f "$ENV_FILE" ]; then
     box_section "Environment Variables"
-    show_info "Updating server IP..."
-    show_info "Keeping existing .env (modification)"
-    sed -i "s|^SERVER_IP=.*|SERVER_IP=$LOCAL_IP|g" "$ENV_FILE"
-    show_success "Server IP updated: $LOCAL_IP"
+
+    env_uses_dns=$(grep '^USES_DNS=' .env | cut -d '=' -f2)
+
+    if [ "$env_uses_dns" = "false" ]; then
+        show_info "Updating server IP..."
+        show_info "Keeping existing .env (modification)"
+        sed -i "s|^SERVER_IP=.*|SERVER_IP=$LOCAL_IP|g" "$ENV_FILE"
+        show_success "Server IP updated: $LOCAL_IP"
+    fi
 
     if [ "$INSTALL_VPN" == "true" ]; then
         FORCE_VPN_CONFIG=true 
@@ -426,8 +433,18 @@ else
     show_info "Downloading base .env..."
     curl -sL "$REPO_BASE/.env.example" -o .env
 
-    read -p "Server DNS Record (e.g. isyrr.local): " LOCAL_DNS
-
+    read -p "Use DNS entry instead of IP? (y/n): " use_dns
+    case $use_dns in
+        [yY]*)
+            read -p "Server DNS Record (e.g. isyrr.local): " LOCAL_IP
+            USES_DNS=true
+            ;;
+        [nN]*)
+            USES_DNS=false
+            ;;
+    esac
+    DNS_QUERIED=true
+    
     show_info "Injecting variables..."
     sed -i "s|^PUID=.*|PUID=$(id -u)|g" .env
     sed -i "s|^PGID=.*|PGID=$(id -g)|g" .env
@@ -435,7 +452,7 @@ else
     sed -i "s|^CONFIG_PATH=.*|CONFIG_PATH=$CONFIG_PATH|g" .env
     sed -i "s|^DATA_PATH=.*|DATA_PATH=$DATA_PATH|g" .env
     sed -i "s|^SERVER_IP=.*|SERVER_IP=$LOCAL_IP|g" .env
-    sed -i "s|^SERVER_DNS=.*|SERVER_DNS=$LOCAL_DNS|g" .env
+    sed -i "s|^USES_DNS=.*|USES_DNS=$USES_DNS|g" .env
     show_success "Configuration injected"
 fi
 
@@ -504,13 +521,25 @@ if [ "$INSTALL_HOMEPAGE" == "true" ]; then
     echo -e "  Interface reachable from your network"
     echo -e "  IP address for widgets and direct access"
     echo ""
+
+    if [ "$DNS_QUERIED" == "false" ]; then
+        read -p "Use DNS entry instead of IP? (y/n): " use_dns
+        case $use_dns in
+            [yY]*)
+                read -p "Server DNS Record (e.g. isyrr.local): " LOCAL_IP
+                USES_DNS=true
+                ;;
+            [nN]*)
+                USES_DNS=false
+                ;;
+        esac
+    fi
+
     sed -i "s/^#SERVER_IP=.*/SERVER_IP=$LOCAL_IP/g" .env
-    read -p "Server DNS Record (eg: isyrr.local): " v_dnsrec
-    sed -i "s|^#SERVER_DNS=.*|SERVER_DNS=$v_dnsrec|g" .env
-    show_success "Server IP configured: $LOCAL_IP, $v_dnsrec"
+    sed -i "s/^#USES_DNS=.*/USES_DNS=$USES_DNS/g" .env
+    show_success "Server IP configured: $LOCAL_IP"
     show_info "You will be able to access Homepage at:" 
     echo -e "  ${CYAN}http://${LOCAL_IP}:3000${NC}"
-    echo -e "  ${CYAN}http://${v_dnsrec}:3000${NC}"
 fi
 
 # ======================================================================

@@ -14,5 +14,5 @@ services:
       - PGID=0
       - TZ=${TZ}
       - HOMEPAGE_VAR_SERVER_IP=${SERVER_IP}
-      - HOMEPAGE_ALLOWED_HOSTS=${SERVER_IP}:3000,localhost:3000,${SERVER_DNS}:3000,${SERVER_IP},${SERVER_DNS}
+      - HOMEPAGE_ALLOWED_HOSTS=${SERVER_IP}:3000,localhost:3000,${SERVER_IP}
     restart: unless-stopped
