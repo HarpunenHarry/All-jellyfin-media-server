@@ -8,8 +8,8 @@ services:
       - NET_ADMIN
     ports:
       - 8080:8080
-      - 51820:51820
-      - 51820:51820/udp
+      - ${ENDPOINT_PORT}:${ENDPOINT_PORT}
+      - ${ENDPOINT_PORT}:${ENDPOINT_PORT}/udp
       - 46931:46931
       - 46931:46931/udp
     environment:
