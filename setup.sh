@@ -132,8 +132,13 @@ function generate_docker_command() {
     fi
 
     if [ "$PACK_TYPE" == "3" ]; then
-        curl -sL "$REPO_BASE/templates/nvidia.yml" -o "$COMPOSE_DL_DIR/nvidia.yml"
-        CMD_ARGS="$CMD_ARGS -f $COMPOSE_DL_DIR/nvidia.yml"
+        if [ "$GPU_PROVIDER" == "nvidia" ]; then
+            curl -sL "$REPO_BASE/templates/nvidia.yml" -o "$COMPOSE_DL_DIR/nvidia.yml"
+            CMD_ARGS="$CMD_ARGS -f $COMPOSE_DL_DIR/nvidia.yml"
+        elif [ "$GPU_PROVIDER" == "nord" ]; then
+            curl -sL "$REPO_BASE/templates/amd.yml" -o "$COMPOSE_DL_DIR/amd.yml"
+            CMD_ARGS="$CMD_ARGS -f $COMPOSE_DL_DIR/amd.yml"
+        fi
     fi
 
     if [ "$INSTALL_HOMEPAGE" == "true" ]; then
@@ -184,6 +189,7 @@ if [ -f "$CONFIG_FILE" ]; then
     echo -e "${CYAN}Your previous installation:${NC}"
     echo -e "  Pack type: ${YELLOW}$PACK_TYPE${NC}"
     echo -e "  VPN: ${YELLOW}$VPN_PROVIDER${NC}"
+    echo -e "  GPU: ${YELLOW}$GPU_PROVIDER${NC}"
     echo -e "  Homepage: ${YELLOW}$INSTALL_HOMEPAGE${NC}"
     echo -e "  Bazarr: ${YELLOW}$INSTALL_BAZARR${NC}"
     echo ""
@@ -273,7 +279,7 @@ echo -e "    Protect your torrent traffic"
 echo ""
 
 echo -e "${RED}[3] ULTIMATE OFFER${NC}"
-echo -e "    Secured pack + Nvidia GPU support"
+echo -e "    Secured pack + GPU support"
 echo -e "    Optimized 4K transcoding"
 echo -e "    For high performance servers"
 echo ""
@@ -287,6 +293,7 @@ while true; do
 done
 
 VPN_PROVIDER="none"
+GPU_PROVIDER="none"
 INSTALL_VPN=false
 
 if [ "$PACK_TYPE" == "1" ]; then
@@ -315,6 +322,28 @@ elif [ "$PACK_TYPE" == "2" ] || [ "$PACK_TYPE" == "3" ]; then
         elif [ "$vpn_choice" == "2" ]; then
             VPN_PROVIDER="proton"
             show_success "ProtonVPN selected"
+            break
+        else
+            show_error "Invalid choice"
+        fi
+    done
+        while true; do
+        echo ""
+        echo -e "${BOLD}Choose your GPU:${NC}"
+        echo ""
+        echo -e "  ${CYAN}1${NC} Nvidia"
+        echo ""
+        echo -e "  ${CYAN}2${NC} AMD"
+        echo ""
+        read -p "Your choice [1-2]: " gpu_choice
+        
+        if [ "$gpu_choice" == "1" ]; then 
+            GPU_PROVIDER="nvidia"
+            show_success "Nvidia selected"
+            break
+        elif [ "$vpn_choice" == "2" ]; then
+            GPU_PROVIDER="amd"
+            show_success "AMD selected"
             break
         else
             show_error "Invalid choice"
@@ -553,12 +582,20 @@ while true; do
             docker compose --env-file "$ENV_FILE" $CMD_ARGS up -d --remove-orphans
             
             if [ "$PACK_TYPE" == "3" ]; then
-                separator_full
-                show_warn "NVIDIA ACCELERATION REMINDER"
-                echo "Check that you have:"
-                echo "  - Nvidia drivers installed"
-                echo "  - Nvidia Container Toolkit configured"
-                separator_full
+                if [ "$GPU_PROVIDER" == "nvidia" ]; then
+                    separator_full
+                    show_warn "NVIDIA ACCELERATION REMINDER"
+                    echo "Check that you have:"
+                    echo "  - Nvidia drivers installed"
+                    echo "  - Nvidia Container Toolkit configured"
+                    separator_full
+                elif [ "$GPU_PROVIDER" == "amd" ]; then
+                    separator_full
+                    show_warn "AMD ACCELERATION REMINDER"
+                    echo "Check that you have:"
+                    echo "  - Amd drivers installed"
+                    separator_full
+                fi
             fi
 
             show_success "Installation complete"
