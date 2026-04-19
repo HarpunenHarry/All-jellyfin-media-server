@@ -1,9 +1,13 @@
 # **All-jellyfin-media-server**
 
+## Custom changes of this fork
+* Seperated `COMMON_PATH` to `CONFIG_PATH` and `DATA_PATH` to allow usage of NAS share
+* Added option to use AMD card by passing-through AMD device to Jellyfin container
+* Changed Homepage to work with a DNS record instead of a fixed IP
+
 <div style="text-align: center">
     <img src="image/Isyrr.png" style="margin: 15px 10px;">
 </div>
-
 
 Welcome to the All-jellyfin-media-server Repository! This repository contains everything you need to create your own Jellyfin media server with Sonarr, Radarr, Jellyseerr, Prowlarr, Jackett, qBittorrent, Bazarr, and Gluetun (VPN) in a Docker Compose setup. We'll refer to the compilation of all containers as **Isyrr** to keep it simple.
 
@@ -14,9 +18,6 @@ Welcome to the All-jellyfin-media-server Repository! This repository contains ev
 [![GitHub last commit](https://img.shields.io/github/last-commit/Morzomb/All-jellyfin-media-server.svg)](https://github.com/Morzomb/All-jellyfin-media-server/commits/master)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Morzomb/All-jellyfin-media-server)
 ![visitors](https://visitor-badge.laobi.icu/badge?page_id=Morzomb.All-jellyfin-media-server.id)
-
-> [!NOTE] 
-> **Acceder au repository en [Français](README-fr.md)**
 
 ## **Table of contents**
 
@@ -620,7 +621,7 @@ chmod +x setup-fr.sh
 1. **Stateful management** - Detects prior installation and offers: Update / Uninstall / Modify / Quit
 2. **Stack selection** - Choose Offer 1 (Standard), 2 (Secured with VPN), or 3 (Ultimate with NVIDIA)
 3. **Additional services** - Optionally enable Homepage dashboard and Bazarr
-4. **Environment variables** - Configure `COMMON_PATH`, `TZ`, `PUID`/`PGID`, `SERVER_IP` (or keep existing `.env`)
+4. **Environment variables** - Configure `CONFIG_PATH`, `DATA_PATH`, `TZ`, `PUID`/`PGID`, `SERVER_IP` (or keep existing `.env`)
 5. **VPN configuration** (if chosen) - Prompts for NordVPN (OpenVPN) or ProtonVPN (WireGuard) credentials
 6. **Preconfiguration** - Deploy homepage config and assets when requested
 7. **Save & Deploy** - Writes installer config, creates directories, and runs `docker compose up -d`
@@ -649,8 +650,8 @@ services:
     ports:
       - 9999:9999
     volumes:
-      - ${COMMON_PATH}/configs/myservice:/config
-      - ${COMMON_PATH}:/data
+      - ${CONFIG_PATH}/configs/myservice:/config
+      - ${DATA_PATH}:/data
     restart: unless-stopped
 EOF
 ```
@@ -744,8 +745,8 @@ For consistency, add your service definition to all `compose_files/docker-compos
     ports:
       - 9999:9999
     volumes:
-      - ${COMMON_PATH}/configs/myservice:/config
-      - ${COMMON_PATH}:/data
+      - ${CONFIG_PATH}/configs/myservice:/config
+      - ${DATA_PATH}:/data
     restart: unless-stopped
 ```
 
@@ -789,7 +790,8 @@ Before proceeding, navigate to the `.env` file located in the `compose_files/` d
 
 ```yaml
 # BASE
-COMMON_PATH=/YOUR_PATH/Isyrr
+CONFIG_PATH=/YOUR_PATH/Isyrr
+DATA_PATH=/YOUR_PATH/Isyrr
 TZ=Europe/Paris
 
 # Uncomment the lines below to enable the corresponding VPN configuration
@@ -889,7 +891,7 @@ Gluetun (Nord VPN) will be automatically configured to be used with the applicat
 # **Configuration Guide for Web Interfaces Only**
 
 > [!IMPORTANT]  
-> All links containing the container name can be replaced with either the server IP or `localhost`. Also, replace `/COMMON_PATH/` with the path you configured in the `.env` file.
+> All links containing the container name can be replaced with either the server IP or `localhost`. Also, replace `/CONFIG_PATH/` & `/DATA_PATH/` with the path you configured in the `.env` file.
 
 
 ## **qBittorrent**
@@ -949,7 +951,7 @@ Gluetun (Nord VPN) will be automatically configured to be used with the applicat
 ### **Media Management**
 
 1. Open the WebUI and go to **Settings** > **Media Management**.
-2. Click **Add Root Folder**, add the path `/COMMON_PATH/radarr/movies`, and click **OK**.
+2. Click **Add Root Folder**, add the path `/DATA_PATH/radarr/movies`, and click **OK**.
 3. Click **Show Advanced** at the top, scroll down to **Importing**, and make sure **Use Hardlinks instead of Copy** is enabled.
 
 <div style="text-align: center">
@@ -976,7 +978,7 @@ Gluetun (Nord VPN) will be automatically configured to be used with the applicat
 _Note: if entering `qbittorrent` as the Host does not work, try entering the IP address instead (ex: `192.168.x.x`)_
 
 > [!WARNING]
-> On new installations, Radarr may complain that the `/downloads/radarr` directory does not exist inside the container (this is generally flagged as an error by Radarr in  **System** > **Status**). To fix this, simply move into the directory `/COMMON_PATH/qbittorrent/downloads` and manually create the `radarr` directory. Then, simply delete qBittorrent from Radarr and re-add it -  you should see the error disappear.
+> On new installations, Radarr may complain that the `/downloads/radarr` directory does not exist inside the container (this is generally flagged as an error by Radarr in  **System** > **Status**). To fix this, simply move into the directory `/DATA_PATH/qbittorrent/downloads` and manually create the `radarr` directory. Then, simply delete qBittorrent from Radarr and re-add it -  you should see the error disappear.
 
 ### **Indexer Jackett (Optional)**
 
@@ -1002,7 +1004,7 @@ _Note: if entering `qbittorrent` as the Host does not work, try entering the IP 
 ### **Media Management**
 
 1. Open the WebUI and go to **Settings** > **Media Management**.
-2. Click **Add Root Folder**, add the path `/COMMON_PATH/sonarr/tv`, and click **OK**.
+2. Click **Add Root Folder**, add the path `/DATA_PATH/sonarr/tv`, and click **OK**.
 3. Click **Show Advanced**, scroll down to **Importing**, and enable **Use Hardlinks instead of Copy**.
 
 <div style="text-align: center">
@@ -1115,12 +1117,12 @@ _Note: if entering `qbittorrent` as the Host does not work, try entering the IP 
 3. Create an administrator account, fill out the credentials as desired, and click **Next** ➝.
 4. Click **Add Media Library** and fill in the following:
    - **Content type**: Movies
-   - **Folders**: `/COMMON_PATH/radarr/movies`
+   - **Folders**: `/DATA_PATH/radarr/movies`
    - Configure the rest as you see fit; the default settings are typically fine.
 5. Click **OK**.
 6. Click **Add Media Library** again and fill in the following:
    - **Content type**: Shows
-   - **Folders**: `/COMMON_PATH/sonarr/tv`
+   - **Folders**: `/DATA_PATH/sonarr/tv`
    - Configure the rest as you see fit; the default settings are typically fine.
 7. Click **OK**.
 8. Click **Next** ➝.
@@ -1129,7 +1131,7 @@ _Note: if entering `qbittorrent` as the Host does not work, try entering the IP 
 11. Click **Next** ➝, then click **Finish**.
 12. Sign in with your administrator account.
 
-Once you sign in, if you already have media in your `/COMMON_PATH/*` folders, it should start appearing in Jellyfin. If not, the content will populate as the folders are filled.
+Once you sign in, if you already have media in your `/DATA_PATH/*` folders, it should start appearing in Jellyfin. If not, the content will populate as the folders are filled.
 
 ### **Adding Users to Jellyfin**
 
