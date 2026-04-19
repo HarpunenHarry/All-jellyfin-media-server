@@ -84,7 +84,7 @@ services:
       - ${CONFIG_PATH}:${CONFIG_PATH}
       - ${DATA_PATH}:${DATA_PATH}
       - ${CONFIG_PATH}/configs/jellyfin:/config
-      - ${DATA_PATH}/jellyfin/cache:/cache
+      - ${CONFIG_PATH}/jellyfin/cache:/cache
       - ${DATA_PATH}/sonarr/tv:/data/tvshows
       - ${DATA_PATH}/radarr/movies:/data/movies
       - ${DATA_PATH}/qbittorrent/downloads:/data/media_downloads
