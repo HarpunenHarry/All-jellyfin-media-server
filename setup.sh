@@ -491,9 +491,11 @@ if [ "$INSTALL_VPN" == "true" ] && [ "$FORCE_VPN_CONFIG" = true ]; then
                 sed -i "s/^# PRIVATE_KEY=/PRIVATE_KEY=/g" .env
                 
                 read -p "Endpoint IP (eg: 185.x.x.x): " v_eip
-                read -p "Endpoint Port (eg: 51820): " v_eport
+                read -p "Endpoint Port [51820]: " v_eport
+                v_eport=${v_eport:-51820}
                 read -p "Wireguard Address (eg: 10.x.x.x): " v_wadr
-                read -p "DNS IP (eg: 185.x.x.x): " v_dns
+                read -p "DNS IP [10.2.0.1]: " v_dns
+                v_dns=${v_dns:-10.2.0.1}
                 read -p "Public Key: " v_pub
                 read -p "Private Key: " v_priv
                 
